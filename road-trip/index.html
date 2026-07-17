@@ -1,156 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tesla Road Trip Dashboard</title>
-<link rel="preconnect" href="https://unpkg.com">
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Franklin to Irvine Tesla Trip</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-:root{
-  --bg:#0b1017;--panel:#121a24;--panel2:#182230;--text:#f4f7fb;--muted:#a8b4c4;
-  --line:#263446;--accent:#48a8ff;--good:#56d38b;--warn:#f4bd50;--danger:#ff6b6b;
-}
-*{box-sizing:border-box}
-body{margin:0;background:linear-gradient(180deg,#081019,#0b1017 50%);color:var(--text);
-font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-header{padding:28px max(20px,calc((100vw - 1240px)/2));border-bottom:1px solid var(--line);
-background:rgba(9,14,21,.92);position:sticky;top:0;z-index:1000;backdrop-filter:blur(14px)}
-h1{margin:0 0 6px;font-size:clamp(24px,4vw,40px)}
-header p{margin:0;color:var(--muted)}
-main{max-width:1240px;margin:auto;padding:24px 20px 60px}
-.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
-button{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:12px 16px;border-radius:12px;
-font-weight:700;cursor:pointer}
-button.active{background:var(--accent);color:#06111c;border-color:var(--accent)}
-.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
-.metric,.notice{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}
-.metric small{display:block;color:var(--muted);margin-bottom:6px}
-.metric b{font-size:23px}
-.notice{margin:18px 0;color:#d9e3ef}
-.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
-#map{height:540px;border-radius:18px;border:1px solid var(--line);overflow:hidden;background:#111}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px}
-.panel h2{margin-top:0}
-.day{background:var(--panel2);border:1px solid var(--line);border-radius:16px;margin-bottom:12px;overflow:hidden}
-.day summary{list-style:none;padding:16px;cursor:pointer}
-.day summary::-webkit-details-marker{display:none}
-.day-head{display:flex;justify-content:space-between;gap:16px;align-items:center}
-.day-title{font-weight:800;font-size:18px}
-.day-time{text-align:right}
-.day-time b{font-size:20px}
-.day-body{padding:0 16px 16px;color:#dce5ef}
-.route-line{color:var(--muted);line-height:1.7}
-.bar{height:12px;background:#0c131c;border-radius:999px;overflow:hidden;border:1px solid #263748;margin:12px 0 5px}
-.fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--good),var(--warn))}
-.small{font-size:13px;color:var(--muted)}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.actions a{color:#d9efff;text-decoration:none;background:#0e1721;border:1px solid #2c4157;padding:9px 11px;border-radius:10px;font-size:13px}
-.legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin-top:10px}
-.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
-footer{color:var(--muted);margin-top:22px;font-size:13px;line-height:1.5}
-@media(max-width:900px){.grid{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}#map{height:420px}}
-@media(max-width:520px){.summary{grid-template-columns:1fr}.day-head{align-items:flex-start}.day-time b{font-size:17px}}
-</style>
-</head>
-<body>
-<header>
-<h1>Franklin → Irvine Tesla Road Trip</h1>
-<p>Maximum 12 hours on the road per day, including charging</p>
-</header>
-<main>
-<div class="controls">
-<button id="thursdayBtn" class="active" onclick="renderPlan('thursday')">Thursday 6 PM departure</button>
-<button id="fridayBtn" onclick="renderPlan('friday')">Friday 8 AM departure</button>
-</div>
-<div id="planTitle"></div>
-<div class="summary" id="summary"></div>
-<div class="notice"><b>Charging assumption:</b> Every Tesla charging estimate from your screenshots has been increased by 12.5%. The day totals include driving and this buffered charging time. They do not include a long sit-down meal or an unexpected traffic closure, so use the remaining margin as your safety cushion.</div>
-<div class="grid">
-  <section>
-    <div id="map"></div>
-    <div class="legend">
-      <span><i class="dot" style="background:#48a8ff"></i>Route stop</span>
-      <span><i class="dot" style="background:#56d38b"></i>Overnight stop</span>
-      <span><i class="dot" style="background:#ff6b6b"></i>Destination</span>
-    </div>
-  </section>
-  <section class="panel">
-    <h2>Daily plan</h2>
-    <div id="days"></div>
-  </section>
-</div>
-<footer>
-Map pins use approximate city or charging-area coordinates and are meant for trip visualization, not turn-by-turn navigation. Open the exact destination in Tesla navigation before each leg. Hotel and food buttons open live Google Maps searches so you can compare current availability, reviews, and hours.
-</footer>
+:root{--bg:#091018;--p:#121c27;--p2:#192635;--t:#f5f8fc;--m:#9fb0c3;--b:#2b3d52;--a:#4aa8ff;--g:#54d88b;--w:#f0bd55}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+header,main{max-width:1200px;margin:auto;padding:22px}h1{margin:0 0 6px}.muted{color:var(--m)}.card{background:var(--p);border:1px solid var(--b);border-radius:17px;padding:17px;margin:14px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}#map{height:460px;border-radius:16px}.days{display:grid;gap:12px}.day,.sight{background:var(--p2);border:1px solid var(--b);border-radius:14px;padding:15px}
+.slider{width:100%}.timebig{font-size:34px;font-weight:800}.bar{height:10px;background:#0a121b;border-radius:99px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,var(--g),var(--w))}
+.stop{border-top:1px solid var(--b);padding:11px 0}.stop:first-child{border-top:0}.pill{display:inline-block;padding:4px 8px;border-radius:99px;background:#233247;font-size:12px}a{color:#8dc7ff}
+@media(max-width:800px){.grid{grid-template-columns:1fr}#map{height:360px}}
+</style></head><body><header><h1>Franklin, TN → Irvine, CA</h1><div class="muted">Updated Tesla route • Friday departure • 12-hour daily maximum including charging</div></header><main>
+<section class="card"><div class="muted">Departure time in Franklin</div><div class="timebig" id="departLabel"></div>
+<input class="slider" id="depart" type="range" min="360" max="660" step="15" value="480"><div class="muted">6:00 AM to 11:00 AM Central Daylight Time</div></section>
+<section class="card"><b>Time-zone interpretation</b><p class="muted">Your Tesla screenshot advances continuously from the phone’s 9:50 PM planning time to the 1:57 PM destination time, without clock jumps at state lines. This site therefore treats the screenshot ETAs as one Central Time reference clock, then converts each stop to local time. New Mexico is one hour behind Franklin. Arizona and California are two hours behind Franklin in July.</p></section>
+<div class="grid"><div id="map"></div><div><h2>Overnight plan</h2><div class="days" id="days"></div></div></div>
+<h2>Charging timeline</h2><section class="card" id="timeline"></section>
+<h2>Optional sightseeing</h2><div class="days" id="sights"></div>
+<section class="card"><b>Planning note</b><p class="muted">Each Tesla charging estimate is increased by 12.5%. Live routing can still change with weather, traffic, cargo, battery temperature, and charger conditions.</p></section>
 </main>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const coords = {"Franklin, TN": [35.9251, -86.8689], "Dickson, TN": [36.077, -87.3878], "Jackson, TN": [35.6145, -88.8139], "Memphis, TN": [35.1495, -90.049], "North Little Rock, AR": [34.7695, -92.2671], "Ozark, AR": [35.487, -93.8277], "Henryetta, OK": [35.4398, -95.9819], "Calumet, OK": [35.6014, -98.1187], "Shamrock, TX": [35.2142, -100.249], "Amarillo, TX": [35.221997, -101.8313], "Tucumcari, NM": [35.1717, -103.725], "Albuquerque, NM": [35.0844, -106.6504], "Milan, NM": [35.1698, -107.8909], "Holbrook, AZ": [34.9022, -110.1582], "Payson, AZ": [34.2309, -111.3251], "Buckeye, AZ": [33.3703, -112.5838], "Quartzsite, AZ": [33.6639, -114.2299], "Indio, CA": [33.7206, -116.2156], "Tustin, CA": [33.7459, -117.8262], "Irvine, CA": [33.6846, -117.8265]};
-const plans = {"thursday": {"title": "Leave Thursday, July 16 at 6:00 PM", "subtitle": "Short first evening, then four controlled driving days", "days": [{"label": "Thursday", "date": "Jul 16", "start": "Franklin, TN", "end": "Memphis, TN", "start_time": "6:00 PM", "minutes": 322, "stops": ["Dickson, TN", "Jackson, TN", "Memphis, TN"], "note": "A deliberately short first night so you are not forcing an all-night drive. Charge in Memphis before checking in.", "sleep": "Memphis, TN"}, {"label": "Friday", "date": "Jul 17", "start": "Memphis, TN", "end": "Henryetta, OK", "start_time": "8:00 AM", "minutes": 503, "stops": ["North Little Rock, AR", "Ozark, AR", "Henryetta, OK"], "note": "Comfortable day with plenty of margin below the 12-hour ceiling.", "sleep": "Henryetta, OK"}, {"label": "Saturday", "date": "Jul 18", "start": "Henryetta, OK", "end": "Tucumcari, NM", "start_time": "8:00 AM", "minutes": 662, "stops": ["Calumet, OK", "Shamrock, TX", "Amarillo, TX", "Tucumcari, NM"], "note": "Longest day in this plan, but still about 58 minutes below your absolute limit.", "sleep": "Tucumcari, NM"}, {"label": "Sunday", "date": "Jul 19", "start": "Tucumcari, NM", "end": "Payson, AZ", "start_time": "8:00 AM", "minutes": 649, "stops": ["Albuquerque, NM", "Milan, NM", "Holbrook, AZ", "Payson, AZ"], "note": "Another full day. Payson provides a natural overnight before the hot desert section.", "sleep": "Payson, AZ"}, {"label": "Monday", "date": "Jul 20", "start": "Payson, AZ", "end": "Irvine, CA", "start_time": "8:00 AM", "minutes": 571, "stops": ["Buckeye, AZ", "Quartzsite, AZ", "Indio, CA", "Tustin, CA", "Irvine, CA"], "note": "Final day into Irvine. Southern California traffic can add time, so the remaining margin is useful.", "sleep": null}]}, "friday": {"title": "Leave Friday, July 17 at 8:00 AM", "subtitle": "Five daytime driving days, all at or below 12 hours", "days": [{"label": "Friday", "date": "Jul 17", "start": "Franklin, TN", "end": "Ozark, AR", "start_time": "8:00 AM", "minutes": 648, "stops": ["Dickson, TN", "Jackson, TN", "Memphis, TN", "North Little Rock, AR", "Ozark, AR"], "note": "A full but manageable first day. Expected finish is around 6:48 PM.", "sleep": "Ozark, AR"}, {"label": "Saturday", "date": "Jul 18", "start": "Ozark, AR", "end": "Amarillo, TX", "start_time": "8:00 AM", "minutes": 672, "stops": ["Henryetta, OK", "Calumet, OK", "Shamrock, TX", "Amarillo, TX"], "note": "About 11 hours 12 minutes. Amarillo has the widest hotel and food selection on this stretch.", "sleep": "Amarillo, TX"}, {"label": "Sunday", "date": "Jul 19", "start": "Amarillo, TX", "end": "Holbrook, AZ", "start_time": "8:00 AM", "minutes": 660, "stops": ["Tucumcari, NM", "Albuquerque, NM", "Milan, NM", "Holbrook, AZ"], "note": "Roughly 11 hours. This avoids reaching the mountain roads around Payson late at night.", "sleep": "Holbrook, AZ"}, {"label": "Monday", "date": "Jul 20", "start": "Holbrook, AZ", "end": "Indio, CA", "start_time": "8:00 AM", "minutes": 602, "stops": ["Payson, AZ", "Buckeye, AZ", "Quartzsite, AZ", "Indio, CA"], "note": "About 10 hours. Indio leaves a very easy final morning into Orange County.", "sleep": "Indio, CA"}, {"label": "Tuesday", "date": "Jul 21", "start": "Indio, CA", "end": "Irvine, CA", "start_time": "8:00 AM", "minutes": 134, "stops": ["Tustin, CA", "Irvine, CA"], "note": "Short final leg. Allow extra time for weekday traffic near Riverside and Orange County.", "sleep": null}]}};
-let map=L.map('map',{zoomControl:true}).setView([35.2,-99.3],5);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
- maxZoom:18,attribution:'&copy; OpenStreetMap contributors'
-}).addTo(map);
-let mapLayers=[];
-
-function clearMap(){mapLayers.forEach(x=>map.removeLayer(x));mapLayers=[]}
-function fmt(mins){const h=Math.floor(mins/60),m=mins%60;return `${h} hr ${m} min`}
-function addMinutes(time, mins){
- let [clock,ampm]=time.split(' '),[h,m]=clock.split(':').map(Number);
- if(ampm==='PM'&&h!==12)h+=12;if(ampm==='AM'&&h===12)h=0;
- let total=h*60+m+mins, day=Math.floor(total/1440);total%=1440;
- let hh=Math.floor(total/60),mm=total%60,ap=hh>=12?'PM':'AM',disp=hh%12||12;
- return `${disp}:${String(mm).padStart(2,'0')} ${ap}${day?' next day':''}`;
-}
-function searchLink(kind,city){
- const q=encodeURIComponent(`${kind} near ${city}`);
- return `https://www.google.com/maps/search/?api=1&query=${q}`;
-}
-function renderPlan(key){
- document.getElementById('thursdayBtn').classList.toggle('active',key==='thursday');
- document.getElementById('fridayBtn').classList.toggle('active',key==='friday');
- const p=plans[key];
- document.getElementById('planTitle').innerHTML=`<h2 style="margin-bottom:4px">${p.title}</h2><p style="color:var(--muted);margin-top:0">${p.subtitle}</p>`;
- const max=Math.max(...p.days.map(d=>d.minutes));
- const total=p.days.reduce((a,d)=>a+d.minutes,0);
- document.getElementById('summary').innerHTML=`
- <div class="metric"><small>Travel days</small><b>${p.days.length}</b></div>
- <div class="metric"><small>Longest day</small><b>${fmt(max)}</b></div>
- <div class="metric"><small>12-hour limit margin</small><b>${fmt(720-max)}</b></div>
- <div class="metric"><small>Total route time</small><b>${fmt(total)}</b></div>`;
- document.getElementById('days').innerHTML=p.days.map((d,i)=>{
-   const pct=Math.min(100,d.minutes/720*100);
-   const route=[d.start,...d.stops].filter((x,j,a)=>j===0||x!==a[j-1]).join(' → ');
-   const overnight=d.sleep?`<div class="actions">
-   <a target="_blank" href="${searchLink('hotels',d.sleep)}">Find hotels</a>
-   <a target="_blank" href="${searchLink('restaurants',d.sleep)}">Find food</a>
-   <a target="_blank" href="${searchLink('Tesla Supercharger',d.sleep)}">Open charger</a>
-   </div>`:'';
-   return `<details class="day" ${i===0?'open':''}>
-   <summary><div class="day-head"><div><div class="day-title">Day ${i+1}: ${d.label}, ${d.date}</div>
-   <div class="small">${d.start} to ${d.end}</div></div>
-   <div class="day-time"><b>${fmt(d.minutes)}</b><div class="small">${d.start_time} → ${addMinutes(d.start_time,d.minutes)}</div></div></div>
-   <div class="bar"><div class="fill" style="width:${pct}%"></div></div>
-   <div class="small">${Math.round(pct)}% of your 12-hour maximum</div></summary>
-   <div class="day-body"><div class="route-line">${route}</div><p>${d.note}</p>${overnight}</div></details>`;
- }).join('');
- clearMap();
- let points=["Franklin, TN"];
- p.days.forEach(d=>d.stops.forEach(s=>{if(points[points.length-1]!==s)points.push(s)}));
- const latlngs=points.map(x=>coords[x]).filter(Boolean);
- const line=L.polyline(latlngs,{color:'#48a8ff',weight:4,opacity:.82}).addTo(map);mapLayers.push(line);
- const sleeps=new Set(p.days.filter(d=>d.sleep).map(d=>d.sleep));
- points.forEach((name,idx)=>{
-   const isDest=name==='Irvine, CA',isSleep=sleeps.has(name);
-   const color=isDest?'#ff6b6b':isSleep?'#56d38b':'#48a8ff';
-   const marker=L.circleMarker(coords[name],{radius:isSleep||isDest?8:5,color:'#071019',weight:2,fillColor:color,fillOpacity:1})
-   .bindPopup(`<b>${name}</b>${isSleep?'<br>Overnight stop':''}${isDest?'<br>Destination':''}`).addTo(map);
-   mapLayers.push(marker);
- });
- map.fitBounds(line.getBounds(),{padding:[30,30]});
-}
-renderPlan('thursday');
-</script>
-</body>
-</html>
+const stops=[{"name":"Franklin, TN","elapsed":0,"charge":0,"buffered":0,"zone":"CT"},{"name":"Jackson, TN","elapsed":123,"charge":12,"buffered":14,"zone":"CT"},{"name":"Memphis, TN","elapsed":195,"charge":27,"buffered":30,"zone":"CT"},{"name":"Brinkley, AR","elapsed":306,"charge":26,"buffered":29,"zone":"CT"},{"name":"Conway, AR","elapsed":412,"charge":45,"buffered":51,"zone":"CT"},{"name":"Alma, AR","elapsed":558,"charge":36,"buffered":40,"zone":"CT"},{"name":"Henryetta, OK","elapsed":686,"charge":32,"buffered":36,"zone":"CT"},{"name":"Oklahoma City, OK","elapsed":809,"charge":14,"buffered":16,"zone":"CT"},{"name":"Weatherford, OK","elapsed":878,"charge":33,"buffered":37,"zone":"CT"},{"name":"Shamrock, TX","elapsed":999,"charge":33,"buffered":37,"zone":"CT"},{"name":"Amarillo, TX","elapsed":1120,"charge":34,"buffered":38,"zone":"CT"},{"name":"Tucumcari, NM","elapsed":1249,"charge":12,"buffered":14,"zone":"MT"},{"name":"Santa Rosa, NM","elapsed":1313,"charge":39,"buffered":44,"zone":"MT"},{"name":"Albuquerque, NM","elapsed":1455,"charge":23,"buffered":26,"zone":"MT"},{"name":"Milan, NM","elapsed":1555,"charge":13,"buffered":15,"zone":"MT"},{"name":"Gallup, NM","elapsed":1625,"charge":21,"buffered":24,"zone":"MT"},{"name":"Holbrook, AZ","elapsed":1724,"charge":28,"buffered":32,"zone":"PT"},{"name":"Flagstaff, AZ","elapsed":1836,"charge":42,"buffered":47,"zone":"PT"},{"name":"Kingman, AZ","elapsed":2008,"charge":53,"buffered":60,"zone":"PT"},{"name":"Baker, CA","elapsed":2193,"charge":15,"buffered":17,"zone":"PT"},{"name":"Barstow, CA","elapsed":2268,"charge":28,"buffered":32,"zone":"PT"},{"name":"Irvine, CA","elapsed":2407,"charge":0,"buffered":0,"zone":"PT"}],days=[{"start":"Franklin, TN","end":"Alma, AR","minutes":599},{"start":"Alma, AR","end":"Amarillo, TX","minutes":646},{"start":"Amarillo, TX","end":"Albuquerque, NM","minutes":390},{"start":"Albuquerque, NM","end":"Flagstaff, AZ","minutes":453},{"start":"Flagstaff, AZ","end":"Irvine, CA","minutes":641}],sights=[{"name":"U-Drop Inn / Conoco Tower","near":"Shamrock, TX","extra":"10-25 min","why":"Art Deco Route 66 landmark and a direct visual inspiration for Ramone’s House of Body Art in Cars."},{"name":"Cadillac Ranch","near":"Amarillo, TX","extra":"30-60 min","why":"Ten half-buried Cadillacs beside I-40. One of the easiest iconic Route 66 stops."},{"name":"Blue Hole","near":"Santa Rosa, NM","extra":"25-60 min","why":"Clear spring-fed swimming hole only a few minutes from I-40."},{"name":"Old Town Albuquerque","near":"Albuquerque, NM","extra":"45-120 min","why":"Historic plaza, adobe architecture, food, and shops. Best as an evening stop."},{"name":"Petrified Forest / Painted Desert","near":"Holbrook, AZ","extra":"2-4 hr","why":"The largest worthwhile detour. The park contains a preserved stretch of historic Route 66."},{"name":"Meteor Crater","near":"Winslow, AZ","extra":"75-120 min","why":"Exceptionally preserved impact crater directly off I-40."},{"name":"Seligman Historic District","near":"Seligman, AZ","extra":"45-90 min","why":"Your planned Cars stop, with the Snow Cap, Delgadillo landmarks, and classic Route 66 buildings."},{"name":"Historic Route 66 to Kingman","near":"Seligman to Kingman","extra":"2-3 hr","why":"Long scenic option through Peach Springs and Hackberry. Use only if you shorten the day elsewhere."},{"name":"Calico Ghost Town","near":"Barstow, CA","extra":"60-120 min","why":"Restored mining town just north of I-15 before the final drive."}];
+const coords={"Franklin, TN":[35.925,-86.869],"Jackson, TN":[35.615,-88.814],"Memphis, TN":[35.149,-90.049],"Brinkley, AR":[34.887,-91.195],"Conway, AR":[35.089,-92.442],"Alma, AR":[35.478,-94.222],"Henryetta, OK":[35.44,-95.982],"Oklahoma City, OK":[35.468,-97.516],"Weatherford, OK":[35.527,-98.708],"Shamrock, TX":[35.214,-100.249],"Amarillo, TX":[35.222,-101.831],"Tucumcari, NM":[35.172,-103.725],"Santa Rosa, NM":[34.938,-104.682],"Albuquerque, NM":[35.084,-106.65],"Milan, NM":[35.17,-107.891],"Gallup, NM":[35.528,-108.743],"Holbrook, AZ":[34.902,-110.158],"Flagstaff, AZ":[35.199,-111.651],"Kingman, AZ":[35.19,-114.053],"Baker, CA":[35.265,-116.074],"Barstow, CA":[34.895,-117.017],"Irvine, CA":[33.685,-117.827],"Seligman, AZ":[35.326,-112.875]};
+const map=L.map('map').setView([35,-102],5);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap'}).addTo(map);
+const pts=stops.map(s=>coords[s.name]);L.polyline(pts,{color:'#4aa8ff',weight:4}).addTo(map);const nights=new Set(days.map(d=>d.end));
+stops.forEach(s=>L.circleMarker(coords[s.name],{radius:nights.has(s.name)?8:5,fillColor:s.name==='Irvine, CA'?'#ff6b6b':nights.has(s.name)?'#54d88b':'#4aa8ff',fillOpacity:1,color:'#071019',weight:2}).bindPopup('<b>'+s.name+'</b>').addTo(map));
+L.circleMarker(coords['Seligman, AZ'],{radius:8,fillColor:'#f0bd55',fillOpacity:1,color:'#071019',weight:2}).bindPopup('<b>Seligman, AZ</b><br>Planned Cars stop').addTo(map);map.fitBounds(pts);
+const fc=m=>{m=((m%1440)+1440)%1440;let h=Math.floor(m/60),ap=h>=12?'PM':'AM';return `${h%12||12}:${String(m%60).padStart(2,'0')} ${ap}`},fd=m=>`${Math.floor(m/60)} hr ${m%60} min`,off=z=>z==='CT'?0:z==='MT'?-60:-120;
+function render(){const dep=+document.getElementById('depart').value;document.getElementById('departLabel').textContent=fc(dep)+' CDT';
+document.getElementById('days').innerHTML=days.map((d,i)=>`<div class="day"><b>Day ${i+1}: ${d.start} → ${d.end}</b><div class="muted">${fd(d.minutes)} planned • ${720-d.minutes} min margin</div><div class="bar"><div class="fill" style="width:${Math.round(d.minutes/7.2)}%"></div></div><p>Leave around ${fc(dep)} local. Approximate finish: ${fc(dep+d.minutes+(d.end.includes('Albuquerque')?-60:d.end.includes('Flagstaff')||d.end.includes('Irvine')?-120:0))} local.</p><a target="_blank" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('hotels near '+d.end)}">Find hotels</a></div>`).join('');
+document.getElementById('timeline').innerHTML=stops.map(s=>{let ct=dep+s.elapsed,local=ct+off(s.zone);return `<div class="stop"><b>${s.name}</b> <span class="pill">${s.zone}</span><br><span class="muted">${fc(local)} local • ${fc(ct)} Central reference${s.charge?` • charge ${s.charge} min Tesla / ${s.buffered} min planned`:''}</span></div>`}).join('');}
+document.getElementById('depart').addEventListener('input',render);render();
+document.getElementById('sights').innerHTML=sights.map(s=>`<div class="sight"><b>${s.name}</b> <span class="pill">${s.extra}</span><div class="muted">Near ${s.near}</div><p>${s.why}</p><a target="_blank" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name+' '+s.near)}">Open in Maps</a></div>`).join('');
+</script></body></html>
